@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "690486031876",
+    "firebase_url": "https://intense-talent-273406.firebaseio.com",
+    "project_id": "intense-talent-273406",
+    "storage_bucket": "intense-talent-273406.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690486031876:android:e1199b573d6b55c7872751",
+        "android_client_info": {
+          "package_name": "com.example.ex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "690486031876-t2rq566lk6tf1hm2srrtkm3l12vad31n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ex",
+            "certificate_hash": "1618baafa35a5062ef0fabbd7786c0edf7a031fd"
+          }
+        },
+        {
+          "client_id": "690486031876-016fjuseho70p8rqmn62va17stsh2i2c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDk4SwoIdXaMudfF43SHovcbriQxRF_XCU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "690486031876-016fjuseho70p8rqmn62va17stsh2i2c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
