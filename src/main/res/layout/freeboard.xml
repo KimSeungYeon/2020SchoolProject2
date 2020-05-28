@@ -1,13 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
-        android:text="자유게시판 미구현"
-        android:gravity="center"
+    <RelativeLayout
+        android:id="@+id/freeboard_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ListView
+            android:id="@+id/freeboard_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:transcriptMode="normal"
+            />
+        <Button
+            android:id="@+id/freeboard_button"
+            android:text="모집글 작성하기"
+            android:layout_margin="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_marginTop="15dp"
+        android:id="@+id/freeboard_uploader"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textSize="30sp"
-        android:background="#ffffaa"
-        />
+        android:orientation="vertical"
+        android:weightSum="14"
+        android:visibility="gone"
+        >
+        <EditText
+            android:id="@+id/freeboard_uploader_title"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:padding="5dp"
+            android:layout_weight="1.5"
+            android:background="#fffeff"
+            android:textSize="14sp"
+            android:hint="제목을 입력해주세요"
+            android:gravity="top"
+            android:maxLines="1"
+            />
+        <TextView
+            android:id="@+id/freeboard_uploader_writer"
+            android:padding="6dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.5"
+            android:text="작성자:ㅇㅇㅇ"
+            />
+        <EditText
+            android:id="@+id/freeboard_uploader_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="9"
+            android:background="#ffeebf"
+            android:hint="내용을 입력해주세요"
+            android:gravity="top"
+            />
+        <Button
+            android:id="@+id/freeboard_upload_button"
+            android:text="글 올리기"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            />
+        <Button
+            android:id="@+id/freeboard_delete_button"
+            android:text="글 삭제"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            />
+    </LinearLayout>
 </LinearLayout>

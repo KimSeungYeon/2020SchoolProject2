@@ -87,11 +87,13 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
 
 
     override fun onStart() {            // setting 설정부분
+
         Set_Spinner(this.context!!)
         Set_MapView(this.activity!!)
         Set_MapEvent()
         View.inflate(context,R.layout.board,board) // 게시판 나올 레이아웃
         Set_ClickListener()
+
         super.onStart()
     }
 

@@ -24,6 +24,7 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_1.*
 import kotlinx.android.synthetic.main.fragment_2.*
+import kotlinx.android.synthetic.main.freeboard.*
 import kotlinx.android.synthetic.main.groupchat.*
 
 var user_chat_board:String? = null
@@ -143,6 +144,15 @@ class MainActivity : AppCompatActivity(){
             }
         } else if (selected_page == 2) {
             when(board_currentpage){
+                0 -> {
+                    when {
+                        freeboard_uploader.visibility == View.VISIBLE -> {
+                            freeboard_layout.visibility = View.VISIBLE
+                            freeboard_uploader.visibility = View.GONE
+                        }
+                        else -> AppUtil.ShowDialog(this, "아파To를 종료하시겠습니까?")
+                    }
+                }
                 1 -> {
                     when {
                         recruit_uploader.visibility == View.VISIBLE -> {

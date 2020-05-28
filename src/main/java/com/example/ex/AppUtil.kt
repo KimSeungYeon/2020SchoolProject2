@@ -19,6 +19,15 @@ import java.time.LocalDateTime
 
 object AppUtil {
     private  val databaseRefer = FirebaseDatabase.getInstance().reference
+    fun ShowDialogAndMessageNoAction(act:Activity,title:String,message:String){
+        val builder = AlertDialog.Builder(act)
+        builder.setTitle(title)
+            .setPositiveButton("확인"){dialogInterface, i ->
+            }
+            .setNegativeButton("취소",null)
+            .setMessage(message)
+            .show()
+    }
     fun ShowDialogNoAction(act:Activity,title:String){
         val builder = AlertDialog.Builder(act)
         builder.setTitle(title)
