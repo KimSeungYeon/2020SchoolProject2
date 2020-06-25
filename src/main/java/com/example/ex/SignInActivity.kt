@@ -1,7 +1,9 @@
 package com.example.ex
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -18,9 +20,13 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_sign_in.*
+import java.lang.Exception
 
 
 class SignInActivity : AppCompatActivity() {//,GoogleApiClient.OnConnectionFailedListener
+    private var user:User? = null
+    private var id:String = "0"
+    private var pw:String = "1"
     private var mFirebaseAuth:FirebaseAuth? = null
     private var check = 0
     private var isLogout = false
@@ -29,8 +35,22 @@ class SignInActivity : AppCompatActivity() {//,GoogleApiClient.OnConnectionFaile
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
         mFirebaseAuth = FirebaseAuth.getInstance()
-
-        isLogout = intent.getBooleanExtra("logout",false) // 로그아웃 했는지
+        Get_User()
+        if(isLogout == false) {
+            mFirebaseAuth?.signInWithEmailAndPassword(id, pw)
+                ?.addOnCompleteListener {
+                    when (it.isSuccessful) {
+                        true -> {
+                            val sf = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+                            val editor = sf.edit()
+                            editor.putStringSet("LOGIN", setOf(id,pw))
+                            editor.commit()
+                            text_id.setText(id)
+                            text_pw.setText(pw)
+                        }
+                    }
+                }
+        }
 
         search_radio.setOnCheckedChangeListener { group, checkedId ->
             when(search_radio.checkedRadioButtonId){
@@ -40,6 +60,33 @@ class SignInActivity : AppCompatActivity() {//,GoogleApiClient.OnConnectionFaile
         }
         checkPermission()
     }
+    fun Set_Content_View(){
+        setContentView(R.layout.activity_sign_in)
+    }
+    fun Get_User(){
+        if(isLogout == true) {
+            val sf = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+            val editor = sf.edit()
+            editor.putStringSet("LOGIN", setOf("0","1"))
+            editor.commit()
+            id = "0"
+            pw = "1"
+        } else {
+            var sf = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+            val IDAndPW = sf.getStringSet("LOGIN", setOf("0", "1"))
+            try {
+                id = IDAndPW.elementAt(0)
+                pw = IDAndPW.elementAt(1)
+            }catch (e:Exception){
+                val editor = sf.edit()
+                editor.putStringSet("LOGIN", setOf("0","1"))
+                editor.commit()
+                id = "0"
+                pw = "1"
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
     fun checkPermission(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -65,6 +112,7 @@ class SignInActivity : AppCompatActivity() {//,GoogleApiClient.OnConnectionFaile
             View.VISIBLE -> search_window.setVisibility(View.GONE)
         }
     }
+
     fun OnLoginButton(view: View) {
             val id = text_id.text.toString()
             val pw = text_pw.text.toString()
@@ -89,6 +137,10 @@ class SignInActivity : AppCompatActivity() {//,GoogleApiClient.OnConnectionFaile
                         if(!mFirebaseAuth?.currentUser!!.isEmailVerified) {
                             Toast.makeText(this, "가입메일로 인증을 해주세요.", Toast.LENGTH_SHORT).show()
                         }else {
+                            val sf = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+                            val editor = sf.edit()
+                            editor.putStringSet("LOGIN", setOf(id,pw))
+                            editor.commit()
                             Toast.makeText(this, "인증아이디", Toast.LENGTH_SHORT).show()
                             ReturnAct()
                         }
@@ -104,10 +156,7 @@ class SignInActivity : AppCompatActivity() {//,GoogleApiClient.OnConnectionFaile
         intent.putExtra("ID",text_id.text.toString())
         intent.putExtra("PW",text_pw.text.toString())
         intent.putExtra("logout",true)
-        when(isLogout) {
-            false -> setResult(REQUEST_LOGIN_CODE, intent)
-            true -> startActivity(intent)
-        }
+        startActivity(intent)
         finish()
     }
     fun OnClose(view:View){

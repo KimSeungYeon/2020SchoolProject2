@@ -23,6 +23,73 @@
         <item>학의동</item>
     </string-array>
 
+    <string-array name="군포시">
+        <item>금정동</item>
+        <item>당동</item>
+        <item>당정동</item>
+        <item>대야미동</item>
+        <item>도마교동</item>
+        <item>부곡동</item>
+        <item>산본동</item>
+    </string-array>
+
+    <string-array name="오산시">
+        <item>가수동</item>
+        <item>가장동</item>
+        <item>갈곶동</item>
+        <item>고현동</item>
+        <item>궐동</item>
+        <item>금암동</item>
+        <item>내삼미동</item>
+        <item>누읍동</item>
+        <item>부산동</item>
+        <item>서동</item>
+        <item>세교동</item>
+        <item>수청동</item>
+        <item>양산동</item>
+        <item>오산동</item>
+        <item>외삼미동</item>
+        <item>원동</item>
+        <item>은계동</item>
+        <item>지곶동</item>
+        <item>청학동</item>
+        <item>청호동</item>
+        <item>탑동</item>
+    </string-array>
+
+    <string-array name="화성시">
+        <item>기산동</item>
+        <item>기안동</item>
+        <item>남양읍</item>
+        <item>능동</item>
+        <item>마도면</item>
+        <item>매송면</item>
+        <item>목동</item>
+        <item>반송동</item>
+        <item>반월동</item>
+        <item>병점동</item>
+        <item>봉담읍</item>
+        <item>비봉면</item>
+        <item>산척동</item>
+        <item>새솔동</item>
+        <item>석우동</item>
+        <item>송동</item>
+        <item>송산동</item>
+        <item>송산면</item>
+        <item>신동</item>
+        <item>안녕동</item>
+        <item>영천동</item>
+        <item>오산동</item>
+        <item>우정읍</item>
+        <item>장안면</item>
+        <item>장지동</item>
+        <item>정남면</item>
+        <item>진안동</item>
+        <item>청계동</item>
+        <item>팔탄면</item>
+        <item>향남읍</item>
+    </string-array>
+
     <string-array name="수원시">
         <item>장안구</item>
         <item>영통구</item>
@@ -47,4 +114,48 @@
         <item>망포동</item>
         <item>이의동</item>
     </string-array>
+
+    <string-array name="안산시">
+        <item>단원구</item>
+        <item>상록구</item>
+    </string-array>
+    <string-array name="단원구">
+        <item>고잔동</item>
+        <item>선부동</item>
+        <item>신길동</item>
+        <item>와동</item>
+        <item>원곡동</item>
+        <item>초지동</item>
+    </string-array>
+    <string-array name="상록구">
+        <item>건건동</item>
+        <item>본오동</item>
+        <item>사동</item>
+        <item>사사동</item>
+        <item>성포동</item>
+        <item>수암동</item>
+        <item>월피동</item>
+        <item>이동</item>
+        <item>장상동</item>
+        <item>팔곡일동</item>
+    </string-array>
+
+    <string-array name="용인시">
+        <item>기흥구</item>
+        <item>수지구</item>
+    </string-array>
+    <string-array name="기흥구">
+        <item>신갈동</item>
+        <item>영덕동</item>
+        <item>하갈동</item>
+    </string-array>
+    <string-array name="수지구">
+        <item>동천동</item>
+        <item>상현동</item>
+        <item>성복동</item>
+        <item>신봉동</item>
+        <item>죽전동</item>
+        <item>풍덕천동</item>
+    </string-array>
+
 </resources>

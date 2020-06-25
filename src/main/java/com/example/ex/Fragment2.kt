@@ -33,6 +33,7 @@ class Fragment2 : Fragment() {
     var read:String? = URLDecoder.decode("","utf-8")
     var ChatSet = mutableSetOf<String>()
     var private_listener:ChildEventListener? = null
+    var  selected_chat_pos = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -73,14 +74,13 @@ class Fragment2 : Fragment() {
             }
     }
 
-
     fun Set_ChatList(){
         ref.child("chatboard").child(Singleton.saveid(user_id!!)).addValueEventListener(object :ValueEventListener{
             override fun onCancelled(p0: DatabaseError) {}
             override fun onDataChange(p0: DataSnapshot) {
                 if(p0.childrenCount == 0L)
                     return
-                chatlist = arrayListOf()
+                val temp = ArrayList<Chat>()
                 var chatName:String? = null
                 var chatType:String? = null
                 var lastMessage:String? = null
@@ -99,10 +99,12 @@ class Fragment2 : Fragment() {
                         count++
                         if( count == 5 ){
                             count = 0
-                            chatlist!!.add(Chat(chatName!!,chatType!!,lastMessage!!,time!!,lastMessageTime!!))
+                            if(lastMessage!! != "퇴장")
+                                temp.add(Chat(chatName!!,chatType!!,lastMessage!!,time!!,lastMessageTime!!))
                         }
                     }
                 }
+                chatlist = temp
                 chatboard.adapter = ChatBoardAdapter(chatlist!!)
             }
         })
@@ -112,6 +114,8 @@ class Fragment2 : Fragment() {
     fun Set_Listener(){
 
         chatboard.setOnItemClickListener { parent, view, position, id ->
+            selected_chat_pos = position
+            Log.d("이거",chatlist!![selected_chat_pos].time)
             message_submit_on = false
             val selectItem = parent.adapter.getItem(position) as Chat
             chatboard.visibility = View.GONE
@@ -160,7 +164,11 @@ class Fragment2 : Fragment() {
                                         if (count2 == 6) {
                                             if (name != "알림")
                                                 people_set.add(name!!)
-                                            if (text!!.contains("%%##%%##")) {  // %%##%%## 나갈떄 코드
+                                            if(text!!.contains("개인채팅")){
+                                                ref.child("chat").child(selectItem.time).push()
+                                                    .child(text!!.substring(8,text!!.indexOf("님")))
+                                                    .setValue(ChatMessage("상대방이 나가서 응답할 수 없습니다.", "알림", photoUrl, imageUrl, id, time))
+                                            } else if (text!!.contains("%%##%%##")) {  // %%##%%## 나갈떄 코드
                                                 people_set.remove(name!!)
                                                 ref.child("chat").child(selectItem.time).push()
                                                     .child(people_set.elementAt(0))
@@ -235,6 +243,38 @@ class Fragment2 : Fragment() {
             ref.child("chat/$TalkTime").push().child(Singleton.getuser().nickname)
                 .setValue(chat)
             message_edit!!.setText("")
+        }
+        chat_out_private.setOnClickListener {  // 퇴장하기
+            var chat:ChatMessage
+            when( chatlist!![selected_chat_pos].chatType ) {
+                "public" -> chat = ChatMessage(
+                    "%%##%%##${Singleton.getuser().nickname}님이 퇴장하셨습니다",
+                    "알림",
+                    "",
+                    "",
+                    user_id,
+                    AppUtil.Get_Time_Min()
+                   )
+                else -> chat = ChatMessage(
+                    "%%##%%##${Singleton.getuser().nickname}님이 퇴장하셨습니다 개인채팅",
+                    "알림",
+                    "",
+                    "",
+                    user_id,
+                    AppUtil.Get_Time_Min()
+                )
+            }
+            ref.child("chat/$TalkTime").push().child(Singleton.getuser().nickname)
+                .setValue(chat)
+            val update_map = HashMap<String,Any>()
+            Log.d("이거", chatlist!!.size.toString())
+            val site = "chatboard/"+Singleton.saveid(Singleton.getuser().id)+"/"+chatlist!![selected_chat_pos].time+"/lastMessage/"
+            update_map.put(site,"퇴장")
+            ref.updateChildren(update_map)
+            chatlist!!.removeAt(selected_chat_pos)
+            chatboard.adapter = ChatBoardAdapter(chatlist!!)
+            chat_view.visibility = View.GONE
+            chatboard.visibility = View.VISIBLE
         }
     }
 }

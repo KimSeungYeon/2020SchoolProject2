@@ -249,7 +249,13 @@
                         android:id="@+id/CalltoBroker"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="전화걸기"
+                        android:text="전화하기"
+                        />
+                    <Button
+                        android:id="@+id/ReportToManager"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="허위매물 신고"
                         />
                     <TextView
                         android:layout_width="match_parent"

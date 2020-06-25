@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.VectorDrawable
 import android.location.LocationManager
 import android.net.Uri
 import android.os.AsyncTask
@@ -16,7 +17,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
+import androidx.annotation.LongDef
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.util.rangeTo
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -28,15 +32,20 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.board.*
 import kotlinx.android.synthetic.main.fragment_1.*
 import kotlinx.android.synthetic.main.fragment_1.sale_upload
 import kotlinx.android.synthetic.main.fragment_1.writing_area
 import kotlinx.android.synthetic.main.fragment_2.*
+import net.daum.mf.map.api.CalloutBalloonAdapter
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
+import org.jetbrains.anko.support.v4.act
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import java.lang.Exception
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -82,12 +91,12 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+        Log.d("이거","뷰생성")
         return inflater.inflate(R.layout.fragment_1, container, false)
     }
 
-
     override fun onStart() {            // setting 설정부분
-
+        Log.d("이거","스타트함수")
         Set_Spinner(this.context!!)
         Set_MapView(this.activity!!)
         Set_MapEvent()
@@ -95,6 +104,21 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
         Set_ClickListener()
 
         super.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        board.visibility = View.GONE
+        sale_uploader.visibility = View.GONE
+        SaleLayoutScroll.visibility = View.GONE
+        map_view.visibility = View.VISIBLE
+        Log.d("이거","실행하였음")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mMapView!!.removeAllPOIItems()
+        Log.d("이거","프래그먼트정보소실")
     }
 
     companion object {
@@ -120,11 +144,18 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
         var id:Int
         when(str){
             "수원시" -> id = R.array.수원시
-            "의왕시" -> id = R.array.의왕시
-
-
             "장안구" -> id = R.array.장안구 //수원시
             "영통구" -> id = R.array.영통구
+            "안산시" -> id = R.array.안산시 // 안산
+            "단원구" -> id = R.array.단원구
+            "상록구" -> id = R.array.상록구
+            "용인시" -> id = R.array.용인시 // 안산
+            "기흥구" -> id = R.array.기흥구
+            "수지구" -> id = R.array.수지구
+            "의왕시" -> id = R.array.의왕시
+            "오산시" -> id = R.array.오산시
+            "화성시" -> id = R.array.화성시
+            "군포시" -> id = R.array.군포시
             else -> id = 1
         }
         Log.d("id값",id.toString())
@@ -142,7 +173,7 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
         marker.tag = i
         marker.markerType = MapPOIItem.MarkerType.BluePin
         marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
-        return marker
+       return marker
     }
 
 
@@ -152,7 +183,7 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
     fun Set_Spinner(context:Context){
         var isAvailableSign = false
         val spinner1 = spinner_si as Spinner
-        val list1 = mutableListOf<String>("시/군","의왕시","수원시")
+        val list1 = mutableListOf<String>("시/군","의왕시","수원시","안산시","오산시","용인시","화성시","군포시")
         spinner1.adapter = ArrayAdapter<String>(context,R.layout.spinner_item,list1)
 
         val spinner2 = spinner_gu as Spinner
@@ -170,24 +201,22 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
                 id: Long
             ) {
                 when(list1[position]){
-                    "의왕시" -> {
+                    "의왕시","군포시","오산시","화성시" -> {
                         selected_gu = ""
                         spinner2.visibility = View.GONE
                         spinner3.adapter = ArrayAdapter<String>(context,R.layout.spinner_item,resources.getStringArray(Get_Array_Id(list1[position])))
-                    }
-                    "수원시" -> {
-                        spinner2.visibility = View.VISIBLE
-                        val gu = resources.getStringArray(Get_Array_Id(list1[position]))
-                        val dong = resources.getStringArray(Get_Array_Id(gu[0]))
-                        spinner2.adapter = ArrayAdapter<String>(context,R.layout.spinner_item,gu)
-                        spinner3.adapter = ArrayAdapter<String>(context,R.layout.spinner_item,dong)
-                        isAvailableSign = true
                     }
                     "시/군" -> {
                         isAvailableSign = false
                         spinner2.visibility = View.VISIBLE
                         spinner2.adapter = ArrayAdapter<String>(context,R.layout.spinner_item,mutableListOf<String>("구"))
                         spinner3.adapter = ArrayAdapter<String>(context,R.layout.spinner_item, mutableListOf<String>("동/읍/면"))
+                    }
+                    else -> {
+                        spinner2.visibility = View.VISIBLE
+                        val gu = resources.getStringArray(Get_Array_Id(list1[position]))
+                        spinner2.adapter = ArrayAdapter<String>(context,R.layout.spinner_item,gu)
+                        isAvailableSign = true
                     }
                 }
             }
@@ -266,7 +295,51 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
                     }
                     View.VISIBLE -> {  //구가 있는 시
                         selected_gu = gu
-                        Toast.makeText(context,si+gu+dong,Toast.LENGTH_LONG).show()
+                        ref.child("아파트/경기도/$si/$selected_gu/$dong").addListenerForSingleValueEvent(object : ValueEventListener{
+                            override fun onCancelled(p0: DatabaseError) {}
+                            override fun onDataChange(p0: DataSnapshot) {
+                                var lat:Double = 0.0
+                                var lng:Double = 0.0
+                                var name:String =""
+                                var infoUrl:String =""
+                                var priceUrl:String =""
+                                var address:String =""
+                                var list:List<String> = listOf()
+                                apartlist?.clear()
+                                apartlist = mutableListOf()
+                                for(snapshot in p0.children){
+                                    for(snapshot2 in snapshot.children) {
+                                        when(snapshot2.key){
+                                            "경도" -> {
+                                                lng = snapshot2.value.toString().toDouble()
+                                            }
+                                            "위도" -> {
+                                                lat = snapshot2.value.toString().toDouble()
+                                            }
+                                            "아파트이름" -> {
+                                                name = snapshot2.value.toString()
+                                            }
+                                            "정보URL" -> {
+                                                infoUrl = snapshot2.value.toString()
+                                            }
+                                            "시세URL" -> {
+                                                priceUrl = snapshot2.value.toString()
+                                            }
+                                            "주소" -> {
+                                                address = snapshot2.value.toString()
+                                            }
+                                            "면적" -> {
+                                                list = snapshot2.value as List<String>
+                                            }
+                                        }
+                                    }
+                                    val apartInfo = ApartInfo(name,address,infoUrl,priceUrl,lat,lng,list)
+                                    apartlist!!.add(apartInfo)
+                                }
+                                load_marker_size = apartlist!!.size
+                                ShowMarkerOnMap()
+                            }
+                        })
                     }
                 }
             } else {
@@ -277,20 +350,12 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
     }
 
     fun ShowMarkerOnMap(){
+        mMapView!!.removeAllPOIItems()
         for(i in 0 until load_marker_size) {
-            if(i >= use_marker_size) {
-                markers.add(Get_Marker(i))
-                markers[i].itemName = apartlist!!.get(i).name
-                markers[i].mapPoint = MapPoint.mapPointWithGeoCoord(apartlist!!.get(i).Lat!!, apartlist!!.get(i).Lng!!)
-                mMapView!!.addPOIItem(markers[i])
-            } else {
-                markers[i].itemName = apartlist!!.get(i).name
-                markers[i].mapPoint = MapPoint.mapPointWithGeoCoord(apartlist!!.get(i).Lat!!, apartlist!!.get(i).Lng!!)
-            }
-        }
-        if(use_marker_size > load_marker_size){
-            for(i in load_marker_size until use_marker_size)
-                markers[i].mapPoint = MapPoint.mapPointWithGeoCoord(apartlist!!.get(0).Lat!!,apartlist!!.get(0).Lng!!)
+            markers.add(Get_Marker(i))
+            markers[i].itemName = apartlist!!.get(i).name
+            markers[i].mapPoint = MapPoint.mapPointWithGeoCoord(apartlist!!.get(i).Lat!!, apartlist!!.get(i).Lng!!)
+            mMapView!!.addPOIItem(markers[i])
         }
         mMapView!!.deselectPOIItem(markers[last_clicked_marker])
         val move_lat = apartlist!!.sumByDouble{ it.Lat!!}/load_marker_size
@@ -325,8 +390,9 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
                     var writerid:String? = null
                     var writing:String? = null
                     var time:String? = null
+                    var report:String? = null
                     if(p0.childrenCount == 0L){
-                        list.add(SaleItem("","해당 매물이 없습니다.","","","","","","",1,""))
+                        list.add(SaleItem("","해당 매물이 없습니다.","","","","","","",1,"",""))
                         sale_list.adapter = SaleItemAdapter(list)
                         board_list = list
                         return
@@ -343,9 +409,10 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
                                "writer" -> writer = snapshot2.value.toString()
                                "writerid" -> writerid = snapshot2.value.toString()
                                "writing" -> writing = snapshot2.value.toString()
+                               "report" -> report = snapshot2.value.toString()
                            }
                        }
-                       list.add(SaleItem(image!!,"매물이름: "+selected_apartInfo!!.name!!,"가격: "+price!!,area!!,"층수: "+floor!!,writer!!,writerid!!,writing!!,type!!,"작성시간: "+time!!))
+                       list.add(SaleItem(image!!,"매물이름: "+selected_apartInfo!!.name!!,"가격: "+price!!,area!!,"층수: "+floor!!,writer!!,writerid!!,writing!!,type!!,"작성시간: "+time!!,report!!))
                    }
                     if(list.size>1) {
                         list = list.reversed() as ArrayList<SaleItem>
@@ -378,7 +445,7 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
             sale_upload.setOnClickListener {  // 매물 게시글 올리기
                 val time = AppUtil.Get_Time()
                 val item = SaleItem("",selected_apartInfo!!.name!!,writing_price.text.toString(),writing_area.selectedItem.toString(),writing_floor.text.toString()
-                ,Singleton.getuser().nickname,Singleton.getuser().id,writing_article.text.toString(),0,time) // 타입 0 정상등록 , 타입 1 거래완료 , 타입 2 신고받은물건, 타입 3 삭제
+                ,Singleton.getuser().nickname,Singleton.getuser().id,writing_article.text.toString(),0,time,"") // 타입 0 정상등록 , 타입 1 거래완료 , 타입 2 신고받은물건, 타입 3 삭제
                 ref.child("sale/경기도/$selected_si/$selected_gu/$selected_dong/${selected_apartInfo!!.name}")
                     .child(time).setValue(item)
                 writing_price.setText("")
@@ -391,18 +458,59 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
             }
         }
         sale_list.setOnItemClickListener { parent, view, position, id -> // 매물리스트 클릭리스너
-            board.visibility = View.GONE
-            SaleLayoutScroll.visibility = View.VISIBLE
-            selected_saleitem = board_list!![position]
-            SaleLayout.removeAllViews()
+            if(!board_list!![0].name.contains("없습니다")) {
+                board.visibility = View.GONE
+                SaleLayoutScroll.visibility = View.VISIBLE
+                selected_saleitem = board_list!![position]
+                SaleLayout.removeAllViews()
 
-            Set_SaleBoard_Text(position)
-            val task = BackgroudTask(selected_apartInfo!!.infoURL!!,selected_saleitem!!.area)
+                Set_SaleBoard_Text(position)
+                val task = BackgroudTask(selected_apartInfo!!.infoURL!!, selected_saleitem!!.area)
+                task.AddContext(context!!)
+                task.execute()
+            } else {
+                Toast.makeText(context,"등록된 매물이 없습니다.",Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        price_button.setOnClickListener {
+            val task = BackgroudTask_Sise(selected_apartInfo!!.priceURL!!, selected_apartInfo!!.name!!)
             task.AddContext(context!!)
             task.execute()
         }
-        CalltoBroker.setOnClickListener {  // 전화하기
-            startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+Singleton.getuser().phone)))
+
+        ReportToManager.setOnClickListener {
+
+            if(selected_saleitem!!.report.contains(Singleton.getuser().nickname) == true){
+                Toast.makeText(act,"이미 신고하신 매물입니다.",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            var str = selected_saleitem!!.report + Singleton.getuser().nickname +"/"
+            val map = HashMap<String,Any>()
+            map.put("report",str)
+            if(selected_gu.isNullOrBlank()) {
+                ref.child("sale/경기도/$selected_si/$selected_gu/$selected_dong/${selected_saleitem!!.name.substring(selected_saleitem!!.name.indexOf(" ")+1)}/${selected_saleitem!!.time.substring(selected_saleitem!!.time.indexOf(" ")+1)}")
+                    .updateChildren(map)
+            }
+            Toast.makeText(act,"해당 매물을 신고 완료하였습니다.",Toast.LENGTH_SHORT).show()
+        }
+
+        CalltoBroker.setOnClickListener {
+            ref.child("user").addListenerForSingleValueEvent(object : ValueEventListener{
+                override fun onCancelled(p0: DatabaseError) {}
+                override fun onDataChange(p0: DataSnapshot) {
+                    for(snapshot in p0.children){
+                        if( snapshot.key == Singleton.saveid(selected_saleitem!!.writerid)){
+                            for(snapshot2 in snapshot.children){
+                                if(snapshot2.key == "phone") {
+                                    Call(snapshot2.value.toString())
+                                    return
+                                }
+                            }
+                        }
+                    }
+                }
+            })
         }
 
         TalktoBroker.setOnClickListener {   //톡하기  %%##%%## 이거 입장
@@ -450,6 +558,10 @@ class Fragment1 : Fragment(),MapView.POIItemEventListener{
         sale_article_writer.setText("작성자: "+board_list!![pos].writer)
         sale_article_writing.setText(board_list!![pos].writing)
         sale_article_time.setText(board_list!![pos].time)
+    }
+    fun Call(number:String){
+        val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+number))
+        startActivity(intent)
     }
 }
 class BackgroudTask(val str1:String,val str2:String): AsyncTask<String, Int, Int>() {
@@ -537,6 +649,64 @@ class BackgroudTask(val str1:String,val str2:String): AsyncTask<String, Int, Int
                     }
                 }
             }
+        }
+        return 0
+    }
+}
+class BackgroudTask_Sise(val str1:String,val str2:String): AsyncTask<String, Int, Int>() {
+    var context:Context? = null
+    val list = mutableListOf<String>()
+    fun AddContext(context:Context){
+        this.context = context
+    }
+    override fun doInBackground(vararg params: String?): Int {
+        val doc = Jsoup.connect(str1).get()
+        Log.d("이거",str1)
+        val parse1 = doc.getElementsByTag("tbody")
+        var parse2:Element? = null
+        //parse1.get(4)
+        try{
+            parse2 = parse1.get(4)
+        } catch (e:Exception){
+            parse2 = null
+        }
+        val list = mutableListOf<String>()
+        if(parse2 != null) {
+            val parse3 = parse2!!.getElementsByTag("td")
+            val sise_size = parse3.size
+            var square: Int = 0
+            var price: Int = 0
+            var str = ""
+            for (i in 0 until sise_size) {
+                when (i % 3) {
+                    0 -> {
+                        str = "면적" + parse3[i].text() + "  "
+                        var temp = parse3[i].text().substring(0, parse3[i].text().indexOf("/"))
+                        if (!temp[temp.lastIndex].isDigit())
+                            temp = temp.substring(0, temp.lastIndex)
+                        square = temp.toInt()
+                    }
+                    1 -> str = str + "거래년월" + parse3[i].text() + "\n"
+                    2 -> {
+                        str = str + "거래금액" + parse3[i].text() + "\n"
+                        price = parse3[i].text().replace(",", "").toInt()
+                        str = str  + "1㎡가격: ${price / square}만원 / 1평가격: ${((price / square) * 3.3).toInt()}만원" + "\n\n"
+                        list.add(str)
+                        str = ""
+                    }
+                }
+            }
+        }
+        val con = context as Activity
+        var str = ""
+        for(i in 0 until list.size) {
+            str = str + list[i]
+        }
+        if(str == ""){
+            str = " 해당 매물은 최근 거래정보가 없습니다. "
+        }
+        con.runOnUiThread {
+            AppUtil.ShowDialogAndMessageNoAction(con,"-시세정보- $str2",str)
         }
         return 0
     }

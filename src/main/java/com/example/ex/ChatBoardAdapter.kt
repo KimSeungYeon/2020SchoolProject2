@@ -40,7 +40,7 @@ class ChatBoardAdapter(val list:ArrayList<Chat>):BaseAdapter(){
             }
         }
 
-        holder.lastMessage!!.text = "마지막 대화@"+chatboard.lastMessage
+        holder.lastMessage!!.text = ""
 
         return v
     }

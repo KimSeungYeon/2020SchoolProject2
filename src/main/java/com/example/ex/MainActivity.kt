@@ -1,6 +1,7 @@
 package com.example.ex
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -26,43 +27,82 @@ import kotlinx.android.synthetic.main.fragment_1.*
 import kotlinx.android.synthetic.main.fragment_2.*
 import kotlinx.android.synthetic.main.freeboard.*
 import kotlinx.android.synthetic.main.groupchat.*
+import org.jetbrains.anko.sdk27.coroutines.onFocusChange
+import org.jetbrains.anko.view
 
 var user_chat_board:String? = null
 var user_id:String? = null
 val REQUEST_LOGIN_CODE = 10001
 class MainActivity : AppCompatActivity(){
-    private var previous_login_id:String? = null
     private var id:String = ""
     private var pw:String = ""
     private var user:User? = null
     private var selected_page = 0
-    private var isReLogin = false
-
+    private var mAdapter:MyPagerAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        isReLogin = intent.getBooleanExtra("logout",false)
+
+        val sf = getSharedPreferences("main_save",MODE_PRIVATE)
+        val editor = sf.edit()
+        editor.putString("user_id","")
+        editor.commit()
+
+        id = intent.getStringExtra("ID")
+        pw = intent.getStringExtra("PW")
+
         Get_User()
-        if(!Exist_User()) {
-            previous_login_id = id
-            startActivityForResult(Intent(this, SignInActivity::class.java), REQUEST_LOGIN_CODE)
-        } else {
-            FirebaseAuth.getInstance().signInWithEmailAndPassword(id,pw)
-                ?.addOnCompleteListener {
-                    if(!it.isSuccessful)
-                        startActivityForResult(Intent(this, SignInActivity::class.java), REQUEST_LOGIN_CODE)
-                }
-            Get_UserInfo()
-            user_id = id
-            user_chat_board = "chatboard/"+id!!.replace(".","_")
-            Get_ViewPager()
+        Get_UserInfo()
+        user_id = id
+        user_chat_board = "chatboard/"+id!!.replace(".","_")
+        Get_ViewPager()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        saveState()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        restoreState()
+    }
+    fun saveState(){
+        val sf = getSharedPreferences("main_save",MODE_PRIVATE)
+        val editor = sf.edit()
+        editor.putString("user_chat_board",user_chat_board)
+        editor.putString("user_id",user_id)
+        editor.putStringSet("user", setOf(user!!.type,user!!.id,user!!.pw,user!!.phone,user!!.name,user!!.nickname,user!!.address))
+        editor.putInt("selected_page",selected_page)
+        editor.commit()
+    }
+    fun restoreState(){
+        val sf2 = getSharedPreferences("main_save", MODE_PRIVATE)
+        if(sf2.getString("user_id","")!=""){
+            pager.currentItem = 1
+            pager.currentItem = 2
+            user_chat_board = sf2.getString("user_chat_board", "")
+            user_id = sf2.getString("user_id", "")
+            val temp = sf2.getStringSet("user", setOf(""))
+            user = User(
+                temp.elementAt(0),
+                temp.elementAt(1),
+                temp.elementAt(2),
+                temp.elementAt(3),
+                temp.elementAt(4),
+                temp.elementAt(5),
+                temp.elementAt(6)
+            )
+            selected_page = sf2.getInt("selected_page", 2)
+            id = user!!.id
+            pw = user!!.pw
         }
-
-
+        pager.currentItem = selected_page
     }
     fun Get_ViewPager(){
         val viewPager = pager as CustomViewPager//ViewPager
         val adapter = MyPagerAdapter(supportFragmentManager)
+        mAdapter = adapter
         viewPager.setPagingEnabled(false)
         viewPager.adapter = adapter
         viewPager.setAdapter(adapter)
@@ -73,6 +113,7 @@ class MainActivity : AppCompatActivity(){
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
             override fun onPageSelected(position: Int) {
                 selected_page = position
+
                 if(position == 1){
                     chat_view.visibility = View.GONE
                     chatboard.visibility = View.VISIBLE
@@ -112,12 +153,19 @@ class MainActivity : AppCompatActivity(){
                 return true
             }
             R.id.chat_menu -> {
+                ChangeUserInfo()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
         }
     }
     override fun onBackPressed() {
+        if(mypage.visibility == View.VISIBLE){
+            main_view.visibility = View.VISIBLE
+            mypage.visibility = View.GONE
+            return
+        }
+
         if( selected_page == 0) {
             when {
                 board.visibility == View.VISIBLE -> {
@@ -162,38 +210,21 @@ class MainActivity : AppCompatActivity(){
                         else -> AppUtil.ShowDialog(this, "아파To를 종료하시겠습니까?")
                     }
                 }
-                else -> Toast.makeText(applicationContext,"아직 구현안함",Toast.LENGTH_LONG).show()
+                else -> AppUtil.ShowDialog(this, "아파To를 종료하시겠습니까?")
             }
         }
     }
-    fun Exist_User():Boolean = (id.isNotBlank()&&pw.isNotBlank())
     fun Get_User(){
         var sf:SharedPreferences? = null
-
-        if(isReLogin == true){
-            val sf = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
-            val editor = sf.edit()
-            id = intent.getStringExtra("ID")
-            pw = intent.getStringExtra("PW")
-            editor.putStringSet("LOGIN", setOf(id,pw))
-            editor.commit()
-            Get_UserInfo()
-            Get_ViewPager()
-            return
-        }
-
-        try {
-            sf = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
-            val IDAndPW = sf.getStringSet("LOGIN", setOf("", ""))
-            id = IDAndPW.elementAt(0)
-            pw = IDAndPW.elementAt(1)
-        }catch (e:Exception){
-            val editor = sf!!.edit()
-            editor.putStringSet("LOGIN", setOf("",""))
-            editor.commit()
-            id = ""
-            pw = ""
-        }
+        sf = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+        val editor = sf.edit()
+        id = intent.getStringExtra("ID")
+        pw = intent.getStringExtra("PW")
+        editor.putStringSet("LOGIN", setOf(id,pw))
+        editor.commit()
+        Get_UserInfo()
+        Get_ViewPager()
+        return
     }
     fun Log_Out(){
             val builder = AlertDialog.Builder(this)
@@ -201,11 +232,10 @@ class MainActivity : AppCompatActivity(){
                 .setPositiveButton("확인"){dialogInterface, i ->
                     val sf:SharedPreferences = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
                     val editor = sf!!.edit()
-                    editor.putStringSet("LOGIN", setOf("",""))
+                    editor.putStringSet("LOGIN", setOf("0","1"))
                     editor.commit()
-                    previous_login_id = id
-                    id = ""
-                    pw = ""
+                    id = "1"
+                    pw = "2"
                     val intent = Intent(this, SignInActivity::class.java)
                     intent.putExtra("logout",true)
                     startActivity(intent)
@@ -213,6 +243,12 @@ class MainActivity : AppCompatActivity(){
                 }
                 .setNegativeButton("취소",null)
                 .show()
+    }
+    fun ChangeUserInfo(){
+            if(mypage.visibility == View.GONE){
+                main_view.visibility = View.GONE
+                mypage.visibility = View.VISIBLE
+            }
     }
     fun Get_UserInfo(){
             val stored_id = id.replace(".","_")

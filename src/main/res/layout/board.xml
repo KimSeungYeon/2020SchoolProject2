@@ -5,7 +5,14 @@
     android:weightSum="12"
     android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools">
+    <Button
+        android:id="@+id/price_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="최근 시세정보"
+        />
     <ListView
+        android:layout_below="@id/price_button"
         android:id="@+id/sale_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

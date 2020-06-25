@@ -256,6 +256,29 @@ class BoardPagerAdapter(activity:Activity,list:ArrayList<View>,pager:ViewPager) 
             AppUtil.ShowDialogAndMessageNoAction(mactivity,"-분양 정보-",str)
 
         }
+
+        mactivity.findViewById<RadioGroup>(R.id.bunyang_radiogroup).setOnCheckedChangeListener { group, checkedId ->
+
+                Log.d("이거",checkedId.toString())
+
+        }
+        mactivity.findViewById<Button>(R.id.bunyang_search).setOnClickListener {  //분양 찾기 검색버튼
+            val search_text = mactivity.findViewById<EditText>(R.id.bunyang_text).text
+            val sub_bunyanglist = ArrayList<Bunyang>()
+
+            if( mactivity.findViewById<RadioButton>(R.id.bunyang_radiobutton_address).isChecked ) {// 주소검색의경우
+                for (i in 0 until bunyanglist.size) {
+                    if (bunyanglist[i].address.contains(search_text))
+                        sub_bunyanglist.add(bunyanglist[i])
+                }
+                mactivity.findViewById<ListView>(R.id.bunyang_listview).adapter = BunyangAdapter(sub_bunyanglist)
+            } else {
+                mactivity.findViewById<ListView>(R.id.bunyang_listview).adapter = BunyangAdapter(bunyanglist)
+                mactivity.findViewById<EditText>(R.id.bunyang_text).setText("")
+            }
+        }
+        
+
     }
     @RequiresApi(Build.VERSION_CODES.O)
     fun Set_RecruitList(){

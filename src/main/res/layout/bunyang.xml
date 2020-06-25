@@ -1,8 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="10"
+            android:orientation="horizontal">
+                <RadioGroup
+                    android:orientation="horizontal"
+                    android:id="@+id/bunyang_radiogroup"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
+                    android:layout_height="match_parent"
+                    >
+                    <RadioButton
+                        android:id="@+id/bunyang_radiobutton_all"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent"
+                        android:text="전체"
+                        android:checked="true"
+                        />
+                    <RadioButton
+                        android:id="@+id/bunyang_radiobutton_address"
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="match_parent"
+                        android:text="지역(시,동)"
+                        />
+                </RadioGroup>
+                <EditText
+                    android:id="@+id/bunyang_text"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="3.5"
+                    />
+                <Button
+                    android:id="@+id/bunyang_search"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5"
+                    android:text="검색"
+                    />
+        </LinearLayout>
     <RelativeLayout
         android:id="@+id/bunyang_layout"
         android:layout_width="match_parent"
