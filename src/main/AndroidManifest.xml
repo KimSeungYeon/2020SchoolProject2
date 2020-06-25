@@ -15,18 +15,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Test">
-        </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".Test"></activity>
+        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".ChatEx" />
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChatEx" />
-        <activity android:name=".SignUpActivity" />
-        <activity android:name=".SignInActivity" />
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -35,11 +34,8 @@
         <activity android:name=".NaverMap" />
 
         <meta-data
-            android:name=""
-            android:value="" />
-        <meta-data
-            android:name=""
-            android:value="" />
+            android:name="com.kakao.sdk.AppKey"
+            android:value="88a87cf69fb518de91d4c02c5c097206" />
     </application>
 
 </manifest>
