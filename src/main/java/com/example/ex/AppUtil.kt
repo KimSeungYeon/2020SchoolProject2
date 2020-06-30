@@ -3,6 +3,7 @@ package com.example.ex
 import android.R
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 
 import android.util.Log
@@ -40,6 +41,20 @@ object AppUtil {
         val builder = AlertDialog.Builder(act)
         builder.setTitle(title)
             .setPositiveButton("확인"){dialogInterface, i ->
+                act.finish()
+            }
+            .setNegativeButton("취소",null)
+            .show()
+    }
+    fun ShowDialog_Change_PW(act:Activity,title:String,id:String){
+        val builder = AlertDialog.Builder(act)
+        builder.setTitle(title)
+            .setPositiveButton("확인"){dialogInterface, i ->
+                val intent = Intent(act, SignInActivity::class.java)
+                intent.putExtra("logout",true)
+                intent.putExtra("change_pw",true)
+                FirebaseAuth.getInstance()!!.sendPasswordResetEmail(id!!)
+                act.startActivity(intent)
                 act.finish()
             }
             .setNegativeButton("취소",null)

@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity(){
         user_id = id
         user_chat_board = "chatboard/"+id!!.replace(".","_")
         Get_ViewPager()
+        Get_MyPage()
     }
 
     override fun onPause() {
@@ -98,6 +100,52 @@ class MainActivity : AppCompatActivity(){
             pw = user!!.pw
         }
         pager.currentItem = selected_page
+    }
+    fun Get_MyPage(){
+        mypage_change.setOnClickListener {  // 변경 완료를 눌르는 경우
+
+            if( AppUtil.isPhoneNumber( mypage_phone.text.toString() ) ) { //전화번호 형식 맞는경우
+
+                val update_map1 = HashMap<String,Any>()
+                val update_map2 = HashMap<String,Any>()
+                val site_phone = "user/"+Singleton.saveid(Singleton.getuser().id)+"/phone"
+                val site_address = "user/"+Singleton.saveid(Singleton.getuser().id)+"/address"
+                update_map1.put(site_phone,mypage_phone.text.toString())
+                update_map2.put(site_address,mypage_address.text.toString())
+                FirebaseDatabase.getInstance().reference.updateChildren(update_map1)
+                FirebaseDatabase.getInstance().reference.updateChildren(update_map2)
+
+                Toast.makeText(this, "전화번호와 주소 정보가 변경 되었습니다.", Toast.LENGTH_LONG).show()
+
+                main_view.visibility = View.VISIBLE
+                mypage.visibility = View.GONE
+
+            } else {
+                Toast.makeText(this, "전화번호 형식이 맞지 않습니다. 다시 확인해주세요.", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        mypage_change_pw.setOnClickListener {  //비밀번호 변경을 누르는 경우
+            AppUtil.ShowDialog_Change_PW(this,"비밀번호를 변경하시겠습니까?",id)
+        }
+
+    }
+    fun Reset_Mypage(){
+        mypage_id.setText(id)
+        when(user!!.type){
+            "broker" -> {
+                mypage_type.setText("중개인")
+            }
+            "generaluser" -> {
+                mypage_address.setFocusable(false)
+                mypage_address.setClickable(false)
+                mypage_type.setText("일반사용자")
+            }
+        }
+        mypage_nickname.setText(user!!.nickname)
+        mypage_phone.setText(user!!.phone)
+        mypage_name.setText(user!!.name)
+        mypage_address.setText(user!!.address)
     }
     fun Get_ViewPager(){
         val viewPager = pager as CustomViewPager//ViewPager
@@ -146,7 +194,7 @@ class MainActivity : AppCompatActivity(){
         menuInflater.inflate(R.menu.main,menu)
         return true
     }
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean { //옵션부분
         when(item!!.itemId){
             R.id.sign_out_menu ->{
                 Log_Out()
@@ -154,6 +202,7 @@ class MainActivity : AppCompatActivity(){
             }
             R.id.chat_menu -> {
                 ChangeUserInfo()
+                Reset_Mypage()
                 return true
             }
             else -> return super.onOptionsItemSelected(item)

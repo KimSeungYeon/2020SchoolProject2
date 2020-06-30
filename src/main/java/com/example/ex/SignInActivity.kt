@@ -36,6 +36,9 @@ class SignInActivity : AppCompatActivity() {//,GoogleApiClient.OnConnectionFaile
         setContentView(R.layout.activity_sign_in)
         mFirebaseAuth = FirebaseAuth.getInstance()
         Get_User()
+        if (intent.getBooleanExtra("change_pw", false) == true) { //비밀번호 변경 누른경우
+            AppUtil.ShowDialogNoAction(this,"가입하셨던 이메일로 비밀번호 변경 메일을 보냈습니다.")
+        }
         if(isLogout == false) {
             mFirebaseAuth?.signInWithEmailAndPassword(id, pw)
                 ?.addOnCompleteListener {
